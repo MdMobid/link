@@ -16,32 +16,22 @@
 
         fetch(firebaseLinkUrl)
             .then(response => {
-                // Check if the request was successful
                 if (!response.ok) {
                     throw new Error(`Network response was not ok: ${response.statusText} (status: ${response.status})`);
                 }
-                // Parse the response body as JSON
-                // Firebase .json endpoints usually return the data directly
                 return response.json();
             })
             .then(targetUrl => {
-                // Validate that the fetched data is a string and looks like a URL
-                // Basic check: is it a non-empty string?
                 if (typeof targetUrl === 'string' && targetUrl.trim() !== '') {
                     messageElement.textContent = `Redirecting you to: ${targetUrl}`;
-                    // Use replace so the redirect page isn't in browser history
                     window.location.replace(targetUrl);
                 } else {
-                    // Handle cases where the data isn't a valid string or is empty
                     throw new Error('Invalid or empty redirect URL received from Firebase.');
                 }
             })
             .catch(error => {
-                // Handle any errors that occurred during fetch or processing
                 console.error('Redirect failed:', error);
                 messageElement.textContent = `Redirect failed. Could not fetch or process the link. Error: ${error.message}`;
-                // Optional: You could redirect to a default fallback URL here too
-                // window.location.href = 'YOUR_FALLBACK_URL_HERE';
             });
     </script>
 </body>
