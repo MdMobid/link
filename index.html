@@ -15,7 +15,6 @@
     <p id="message">Fetching redirect link, please wait...</p>
 
     <script>
-        const firebaseBaseUrl = 'https://my-vars1-default-rtdb.firebaseio.com/links/';
         const messageElement = document.getElementById('message');
 
         // Get the "id" parameter from the query string
@@ -25,9 +24,18 @@
         if (!id) {
             messageElement.textContent = "'id' Parameter Is Required";
         } else {
-            const firebaseUrl = `${firebaseBaseUrl}${id}.json`;
+            // Fetch the Firebase base URL securely from your backend
+            fetch('/get-firebase-url')
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                    return response.json();
+                })
+                .then(config => {
+                    const firebaseBaseUrl = config.firebaseBaseUrl;
+                    const firebaseUrl = `${firebaseBaseUrl}${id}.json`;
 
-            fetch(firebaseUrl)
+                    return fetch(firebaseUrl);
+                })
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
                     return response.json();
