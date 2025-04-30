@@ -11,8 +11,14 @@
     <p id="message">Fetching redirect link, please wait...</p>
 
     <script>
-        const firebaseLinkUrl = 'https://my-vars1-default-rtdb.firebaseio.com/link.json';
+        const firebaseBaseUrl = 'https://my-vars1-default-rtdb.firebaseio.com/';
         const messageElement = document.getElementById('message');
+
+        // Get the current path (e.g., /tunnel/link1)
+        const path = window.location.pathname.split('/').pop();
+
+        // Construct the Firebase URL based on the path
+        const firebaseLinkUrl = `${firebaseBaseUrl}${path}.json`;
 
         fetch(firebaseLinkUrl)
             .then(response => {
