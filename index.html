@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>Redirecting...</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -14,30 +18,33 @@
         const firebaseBaseUrl = 'https://my-vars1-default-rtdb.firebaseio.com/';
         const messageElement = document.getElementById('message');
 
-        // Get the current path (e.g., /tunnel/link1)
-        const path = window.location.pathname.split('/').pop();
+        // Extract last part of path (e.g., link1 from /links/link1)
+        const segments = window.location.pathname.split('/').filter(Boolean);
+        const path = segments[segments.length - 1];
 
-        // Construct the Firebase URL based on the path
-        const firebaseLinkUrl = `${firebaseBaseUrl}${path}.json`;
+        // Build Firebase fetch URL
+        const firebaseUrl = `${firebaseBaseUrl}${path}.json`;
 
-        fetch(firebaseLinkUrl)
+        // Fetch redirect URL from Firebase
+        fetch(firebaseUrl)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText} (status: ${response.status})`);
+                    throw new Error(`HTTP error: ${response.status}`);
                 }
                 return response.json();
             })
-            .then(targetUrl => {
-                if (typeof targetUrl === 'string' && targetUrl.trim() !== '') {
-                    messageElement.textContent = `Redirecting you to: ${targetUrl}`;
-                    window.location.replace(targetUrl);
+            .then(redirectUrl => {
+                console.log("Firebase returned:", redirectUrl);
+                if (typeof redirectUrl === 'string' && redirectUrl.trim() !== '') {
+                    messageElement.textContent = `Redirecting to: ${redirectUrl}`;
+                    window.location.replace(redirectUrl);
                 } else {
-                    throw new Error('Invalid or empty redirect URL received from Firebase.');
+                    throw new Error('Redirect URL is empty or invalid.');
                 }
             })
             .catch(error => {
                 console.error('Redirect failed:', error);
-                messageElement.textContent = `Redirect failed. Could not fetch or process the link. Error: ${error.message}`;
+                messageElement.textContent = `Redirect failed: ${error.message}`;
             });
     </script>
 </body>
