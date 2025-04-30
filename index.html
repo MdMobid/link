@@ -18,30 +18,34 @@
         const firebaseBaseUrl = 'https://my-vars1-default-rtdb.firebaseio.com/';
         const messageElement = document.getElementById('message');
 
-        // Extract last path segment (e.g., link1 from /links/link1)
-        const segments = window.location.pathname.split('/').filter(Boolean);
-        const key = segments[segments.length - 1];
+        // Get the "id" parameter from the query string
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
 
-        const firebaseUrl = `${firebaseBaseUrl}${key}.json`;
+        if (!id) {
+            messageElement.textContent = "Missing 'id' parameter in URL.";
+        } else {
+            const firebaseUrl = `${firebaseBaseUrl}${id}.json`;
 
-        fetch(firebaseUrl)
-            .then(res => {
-                if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-                return res.json();
-            })
-            .then(url => {
-                console.log('Firebase returned:', url);
-                if (typeof url === 'string' && url.trim()) {
-                    messageElement.textContent = `Redirecting to: ${url}`;
-                    window.location.replace(url);
-                } else {
-                    throw new Error('Empty or invalid URL from Firebase');
-                }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                messageElement.textContent = `Error: ${err.message}`;
-            });
+            fetch(firebaseUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+                    return response.json();
+                })
+                .then(redirectUrl => {
+                    console.log('Firebase returned:', redirectUrl);
+                    if (typeof redirectUrl === 'string' && redirectUrl.trim() !== '') {
+                        messageElement.textContent = `Redirecting to: ${redirectUrl}`;
+                        window.location.replace(redirectUrl);
+                    } else {
+                        throw new Error('Invalid or empty redirect URL from Firebase.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Redirect failed:', error);
+                    messageElement.textContent = `Redirect failed: ${error.message}`;
+                });
+        }
     </script>
 </body>
 </html>
