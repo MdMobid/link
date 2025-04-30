@@ -18,33 +18,29 @@
         const firebaseBaseUrl = 'https://my-vars1-default-rtdb.firebaseio.com/';
         const messageElement = document.getElementById('message');
 
-        // Extract last part of path (e.g., link1 from /links/link1)
+        // Extract last path segment (e.g., link1 from /links/link1)
         const segments = window.location.pathname.split('/').filter(Boolean);
-        const path = segments[segments.length - 1];
+        const key = segments[segments.length - 1];
 
-        // Build Firebase fetch URL
-        const firebaseUrl = `${firebaseBaseUrl}${path}.json`;
+        const firebaseUrl = `${firebaseBaseUrl}${key}.json`;
 
-        // Fetch redirect URL from Firebase
         fetch(firebaseUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error: ${response.status}`);
-                }
-                return response.json();
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+                return res.json();
             })
-            .then(redirectUrl => {
-                console.log("Firebase returned:", redirectUrl);
-                if (typeof redirectUrl === 'string' && redirectUrl.trim() !== '') {
-                    messageElement.textContent = `Redirecting to: ${redirectUrl}`;
-                    window.location.replace(redirectUrl);
+            .then(url => {
+                console.log('Firebase returned:', url);
+                if (typeof url === 'string' && url.trim()) {
+                    messageElement.textContent = `Redirecting to: ${url}`;
+                    window.location.replace(url);
                 } else {
-                    throw new Error('Redirect URL is empty or invalid.');
+                    throw new Error('Empty or invalid URL from Firebase');
                 }
             })
-            .catch(error => {
-                console.error('Redirect failed:', error);
-                messageElement.textContent = `Redirect failed: ${error.message}`;
+            .catch(err => {
+                console.error('Error:', err);
+                messageElement.textContent = `Error: ${err.message}`;
             });
     </script>
 </body>
