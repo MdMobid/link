@@ -15,7 +15,6 @@
     <p id="message">Fetching redirect link, please wait...</p>
 
     <script>
-        const firebaseBaseUrl = 'https://my-vars1-default-rtdb.firebaseio.com/links/';
         const messageElement = document.getElementById('message');
 
         // Get the "id" parameter from the query string
@@ -25,20 +24,18 @@
         if (!id) {
             messageElement.textContent = "'id' Parameter Is Required";
         } else {
-            const firebaseUrl = `${firebaseBaseUrl}${id}.json`;
-
-            fetch(firebaseUrl)
+            fetch('links.json')
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
                     return response.json();
                 })
-                .then(redirectUrl => {
-                    console.log('Firebase returned:', redirectUrl);
+                .then(links => {
+                    const redirectUrl = links[id];
                     if (typeof redirectUrl === 'string' && redirectUrl.trim() !== '') {
                         messageElement.textContent = `Redirecting to: ${redirectUrl}`;
                         window.location.replace(redirectUrl);
                     } else {
-                        throw new Error('Invalid or empty redirect URL from Firebase.');
+                        throw new Error('No valid URL found for this ID.');
                     }
                 })
                 .catch(error => {
